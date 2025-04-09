@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 import joblib
+from datetime import datetime
+import csv
+import os
 
 # Load the dataset
 df = pd.read_csv("diabetes.csv")
@@ -9,6 +12,24 @@ df = pd.read_csv("diabetes.csv")
 # Split data
 X = df.drop("Outcome", axis=1)
 y = df["Outcome"]
+
+# This function logs the input data and prediction to a CSV file with a timestamp
+
+def log_prediction(input_data, prediction):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    file_exists = os.path.isfile("predictions_log.csv")
+    
+    with open("predictions_log.csv", mode='a', newline='') as file:
+        writer = csv.writer(file)
+        
+        if not file_exists:
+            writer.writerow([
+                "Timestamp", "Pregnancies", "Glucose", "Blood Pressure", "Skin Thickness",
+                "Insulin", "BMI", "Diabetes Pedigree", "Age", "Prediction"
+            ])
+        
+        writer.writerow([timestamp] + input_data[0] + [prediction])
+
 
 # Train the model (you can later save & load it instead)
 model = DecisionTreeClassifier()
@@ -34,6 +55,8 @@ if st.button("Predict"):
                    insulin, bmi, dpf, age]]
     
     prediction = model.predict(input_data)[0]
+    
+    log_prediction(input_data, prediction)
 
     if prediction == 1:
         st.error("⚠️ The model predicts: **Diabetic**")
