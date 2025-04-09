@@ -55,10 +55,17 @@ if st.button("Predict"):
                    insulin, bmi, dpf, age]]
     
     prediction = model.predict(input_data)[0]
-    
+
     log_prediction(input_data, prediction)
 
     if prediction == 1:
         st.error("⚠️ The model predicts: **Diabetic**")
     else:
         st.success("✅ The model predicts: **Not Diabetic**")
+
+
+# Display the log file (if exists)
+if os.path.exists("predictions_log.csv"):
+    st.subheader("📋 Prediction Logs")
+    log_df = pd.read_csv("predictions_log.csv")
+    st.dataframe(log_df)
